@@ -1,2 +1,2 @@
-# rmedBunnies_prototype
+# ArmedBunnies_prototype
 Isometric third person shooter
