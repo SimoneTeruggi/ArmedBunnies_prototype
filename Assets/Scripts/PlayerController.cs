@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody playerRb;
 
     private bool isOnGround = true;
+    private bool isSprinting = false;
+    public bool isGameOver = false;
 
     public float speed = 5.0f;
     public float sensitivity = 1000.0f;
@@ -16,11 +18,18 @@ public class PlayerController : MonoBehaviour
     public float horizBound = 24.0f;
     public float sfxVolume = 1.0f;
 
+    public ParticleSystem defeatedParticle;
+
     public AudioClip jumpClip;
     public AudioClip shootClip;
     private AudioSource playerAudio;
    
     public GameObject projectilePrefab;
+
+    public float playerLife = 100;
+    public float enemyDamage = 5.0f;
+
+    public float bounceAwayforce;
 
     // Start is called before the first frame update
     void Start()
@@ -37,10 +46,24 @@ public class PlayerController : MonoBehaviour
     {
         MovePlayer();
 
-        ConstrainMovement();
+        Sprint();
+        //ConstrainMovement();
 
         Fire();
 
+        GameOver();
+    }
+
+    private void GameOver()
+    {
+        
+        if (playerLife <= 0)
+        {
+            Destroy(gameObject);
+            //CHECK WHY PARTICLES PLAY WITH A LOT OF DELAY
+            //defeatedParticle.Play();
+            isGameOver = true;
+        }
     }
 
     private void MovePlayer()
@@ -66,7 +89,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ConstrainMovement()
+    private void Sprint()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isSprinting)
+        {
+            isSprinting = true;
+            speed *= 2;
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftShift) && isSprinting)
+        {
+            isSprinting = false;
+            speed /= 2;
+        }
+    }
+    /*private void ConstrainMovement()
     {
         if (transform.position.x < -horizBound)
         {
@@ -84,7 +120,7 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = new Vector3(transform.position.x, transform.position.y, vertBound);
         }
-    }
+    }*/
 
     private void Fire()
     {
@@ -99,6 +135,37 @@ public class PlayerController : MonoBehaviour
         if (collision.transform.CompareTag("Ground"))
         {
             isOnGround = true;
+        }
+
+        if (collision.transform.CompareTag("Enemy"))
+        {
+            playerLife -= enemyDamage;
+
+            Rigidbody enemyRigidBody = collision.gameObject.GetComponent<Rigidbody>();
+            Vector3 away = -collision.contacts[0].normal;
+            enemyRigidBody.AddForce(away * bounceAwayforce, ForceMode.Impulse);
+
+            Debug.Log(playerLife);
+        }
+        else if (collision.transform.CompareTag("EnemyBig"))
+        {
+            playerLife -= enemyDamage * 3;
+
+            Rigidbody enemyRigidBody = collision.gameObject.GetComponent<Rigidbody>();
+            Vector3 away = -collision.contacts[0].normal;
+            enemyRigidBody.AddForce(away * (bounceAwayforce * 3), ForceMode.Impulse);
+
+            Debug.Log(playerLife);
+        }
+        else if (collision.transform.CompareTag("EnemyMed"))
+        {
+            playerLife -= enemyDamage * 2;
+
+            Rigidbody enemyRigidBody = collision.gameObject.GetComponent<Rigidbody>();
+            Vector3 away = -collision.contacts[0].normal;
+            enemyRigidBody.AddForce(away * (bounceAwayforce * 2), ForceMode.Impulse);
+
+            Debug.Log(playerLife);
         }
     }
 }

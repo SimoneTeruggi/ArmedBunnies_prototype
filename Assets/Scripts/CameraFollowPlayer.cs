@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CameraFollowPlayer : MonoBehaviour
 {
+    private PlayerController playerControllerScript;
     public Transform player;
     public float cameraOffsetX;
     public float cameraOffsetY;
@@ -11,12 +12,16 @@ public class CameraFollowPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        playerControllerScript = player.gameObject.GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
     void LateUpdate()
     {
-        transform.position = player.position + new Vector3(cameraOffsetX, cameraOffsetY, cameraOffsetZ);
+        if (!playerControllerScript.isGameOver)
+        {
+            transform.position = player.position + new Vector3(cameraOffsetX, cameraOffsetY, cameraOffsetZ);
+        }
+        
     }
 }
