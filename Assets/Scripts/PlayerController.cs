@@ -60,8 +60,7 @@ public class PlayerController : MonoBehaviour
         if (playerLife <= 0)
         {
             Destroy(gameObject);
-            //CHECK WHY PARTICLES PLAY WITH A LOT OF DELAY
-            //defeatedParticle.Play();
+            Instantiate(defeatedParticle, transform.position, defeatedParticle.transform.rotation);
             isGameOver = true;
         }
     }
